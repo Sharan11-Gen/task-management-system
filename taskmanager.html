@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GBS GL Task Management System</title>
+    <title>Enterprise Task Management System</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -646,8 +646,8 @@
     <!-- Login Screen -->
     <div class="login-container" id="loginScreen">
         <div class="login-card">
-            <h1>🏢 GBS GL Task Management</h1>
-            <p>Team Collaboration Platform</p>
+            <h1>🏢 TaskFlow Pro</h1>
+            <p>Enterprise Task Management System</p>
             <form id="loginForm" class="login-form">
                 <div class="form-group">
                     <label for="userId">User ID</label>
@@ -667,12 +667,12 @@
     <div class="app" id="mainApp">
         <!-- Header -->
         <div class="header">
-            <h1>🏢 GBS GL Task Management</h1>
+            <h1>🏢 TaskFlow Pro</h1>
             <div class="user-info">
                 <div class="avatar" id="userAvatar">A</div>
                 <div>
-                    <div id="userName">User</div>
-                    <div style="font-size: 12px; color: #666;" id="userRole">Role</div>
+                    <div id="userName">Admin User</div>
+                    <div style="font-size: 12px; color: #666;" id="userRole">Administrator</div>
                 </div>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
@@ -1086,93 +1086,22 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
         let currentDate = new Date();
         let data = {
             users: [
-                // Admins
-                { 
-                    id: 1, 
-                    name: 'Sourav Roy', 
-                    email: 'sourav.roy@company.com', 
-                    role: 'admin', 
-                    team: null, 
-                    status: 'active',
-                    userId: 'sourav',
-                    password: 'sourav123'
-                },
-                { 
-                    id: 2, 
-                    name: 'Haldar Satadru', 
-                    email: 'haldar.satadru@company.com', 
-                    role: 'admin', 
-                    team: null, 
-                    status: 'active',
-                    userId: 'haldar',
-                    password: 'haldar123'
-                },
-                
-                // Supervisor
-                { 
-                    id: 3, 
-                    name: 'Saquib', 
-                    email: 'saquib@company.com', 
-                    role: 'supervisor', 
-                    team: 'GBS GL', 
-                    status: 'active',
-                    userId: 'saquib',
-                    password: 'saquib123'
-                },
-                
-                // Team Members
-                { 
-                    id: 4, 
-                    name: 'Mayank', 
-                    email: 'mayank@company.com', 
-                    role: 'employee', 
-                    team: 'GBS GL', 
-                    status: 'active',
-                    userId: 'mayank',
-                    password: 'mayank123'
-                },
-                { 
-                    id: 5, 
-                    name: 'Anish', 
-                    email: 'anish@company.com', 
-                    role: 'employee', 
-                    team: 'GBS GL', 
-                    status: 'active',
-                    userId: 'anish',
-                    password: 'anish123'
-                },
-                { 
-                    id: 6, 
-                    name: 'Anamika', 
-                    email: 'anamika@company.com', 
-                    role: 'employee', 
-                    team: 'GBS GL', 
-                    status: 'active',
-                    userId: 'anamika',
-                    password: 'anamika123'
-                },
-                { 
-                    id: 7, 
-                    name: 'Aritra', 
-                    email: 'aritra@company.com', 
-                    role: 'employee', 
-                    team: 'GBS GL', 
-                    status: 'active',
-                    userId: 'aritra',
-                    password: 'aritra123'
-                }
+                { id: 1, name: 'Admin User', email: 'admin@company.com', role: 'admin', team: null, status: 'active', userId: 'admin', password: 'admin123' },
+                { id: 2, name: 'John Smith', email: 'john@company.com', role: 'supervisor', team: 'Engineering', status: 'active', userId: 'john', password: 'john123' },
+                { id: 3, name: 'Jane Doe', email: 'jane@company.com', role: 'employee', team: 'Engineering', status: 'active', userId: 'jane', password: 'jane123' },
+                { id: 4, name: 'Mike Johnson', email: 'mike@company.com', role: 'supervisor', team: 'Marketing', status: 'active', userId: 'mike', password: 'mike123' },
+                { id: 5, name: 'Sarah Wilson', email: 'sarah@company.com', role: 'employee', team: 'Marketing', status: 'active', userId: 'sarah', password: 'sarah123' }
             ],
             teams: [
-                { 
-                    id: 1, 
-                    name: 'GBS GL', 
-                    description: 'Global Business Solutions team', 
-                    supervisor: 3, 
-                    members: [3, 4, 5, 6, 7], 
-                    created: new Date().toISOString().split('T')[0]
-                }
+                { id: 1, name: 'Engineering', description: 'Software development and technical operations', supervisor: 2, members: [2, 3], created: '2025-01-01' },
+                { id: 2, name: 'Marketing', description: 'Marketing campaigns and brand management', supervisor: 4, members: [4, 5], created: '2025-01-01' }
             ],
-            tasks: []  // No tasks initially as requested
+            tasks: [
+                { id: 1, title: 'Setup Development Environment', description: 'Configure development tools and environments', assignee: 3, supervisor: 2, team: 'Engineering', dueDate: getCurrentDate(), priority: 'high', status: 'progress', progress: 60, estimatedHours: 8, created: '2025-08-20' },
+                { id: 2, title: 'Create Marketing Campaign', description: 'Design Q4 marketing campaign strategy', assignee: 5, supervisor: 4, team: 'Marketing', dueDate: '2025-09-25', priority: 'medium', status: 'pending', progress: 0, estimatedHours: 16, created: '2025-08-21' },
+                { id: 3, title: 'Code Review Process', description: 'Implement automated code review workflow', assignee: 3, supervisor: 2, team: 'Engineering', dueDate: '2025-08-18', priority: 'critical', status: 'overdue', progress: 30, estimatedHours: 12, created: '2025-08-15' }
+            ],
+            activities: []
         };
 
         // Chart variables
@@ -1215,9 +1144,6 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
                 userId: userId || (currentUser ? currentUser.id : null),
                 timestamp: new Date().toISOString()
             };
-            if (!data.activities) {
-                data.activities = [];
-            }
             data.activities.unshift(activity);
             updateActivityLog();
         }
@@ -1265,7 +1191,6 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
                 document.getElementById('mainApp').style.display = 'block';
                 updateUserInterface();
                 showTab('dashboard');
-                if (!data.activities) data.activities = [];
                 addActivity('login', `${currentUser.name} logged in`, currentUser.id);
                 showNotification(`Welcome back, ${currentUser.name}!`);
             } else {
@@ -1274,7 +1199,7 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
         };
 
         function logout() {
-            if (currentUser && data.activities) {
+            if (currentUser) {
                 addActivity('logout', `${currentUser.name} logged out`, currentUser.id);
             }
             currentUser = null;
@@ -1299,16 +1224,11 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
             });
 
             // Show/hide analytics based on role
-            const adminAnalytics = document.getElementById('adminAnalytics');
-            const supervisorAnalytics = document.getElementById('supervisorAnalytics');
-            if (adminAnalytics) adminAnalytics.style.display = currentUser.role === 'admin' ? 'block' : 'none';
-            if (supervisorAnalytics) supervisorAnalytics.style.display = currentUser.role === 'supervisor' ? 'block' : 'none';
+            document.getElementById('adminAnalytics').style.display = currentUser.role === 'admin' ? 'block' : 'none';
+            document.getElementById('supervisorAnalytics').style.display = currentUser.role === 'supervisor' ? 'block' : 'none';
             
             // Hide today's tasks section for non-employees
-            const todaysTasksSection = document.getElementById('todaysTasksSection');
-            if (todaysTasksSection) {
-                todaysTasksSection.style.display = currentUser.role === 'employee' ? 'block' : 'none';
-            }
+            document.getElementById('todaysTasksSection').style.display = currentUser.role === 'employee' ? 'block' : 'none';
 
             updateDashboard();
             updateTables();
@@ -1323,11 +1243,8 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            const tabElement = document.getElementById(tabName);
-            if (tabElement) {
-                tabElement.classList.add('active');
-                event.target.classList.add('active');
-            }
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
 
             switch(tabName) {
                 case 'dashboard': updateDashboard(); break;
@@ -1343,127 +1260,111 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
 
         // Modal Functions
         function openModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.add('active');
-                if (modalId === 'addUserModal') {
-                    populateTeamSelectors();
-                    populateSupervisorSelector();
-                } else if (modalId === 'createTeamModal') {
-                    populateSupervisorSelector();
-                } else if (modalId === 'assignTaskModal') {
-                    populateEmployeeSelector();
-                }
+            document.getElementById(modalId).classList.add('active');
+            if (modalId === 'addUserModal') {
+                populateTeamSelectors();
+                populateSupervisorSelector();
+            } else if (modalId === 'createTeamModal') {
+                populateSupervisorSelector();
+            } else if (modalId === 'assignTaskModal') {
+                populateEmployeeSelector();
             }
         }
-        
         function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.remove('active');
-            }
+            document.getElementById(modalId).classList.remove('active');
         }
 
         // Form Handlers
-        const addUserForm = document.getElementById('addUserForm');
-        if (addUserForm) {
-            addUserForm.onsubmit = function(e) {
-                e.preventDefault();
-                const name = document.getElementById('newUserName').value;
-                const email = document.getElementById('newUserEmail').value;
-                const role = document.getElementById('newUserRole').value;
-                const team = document.getElementById('newUserTeam').value;
-                const userId = name.toLowerCase().split(' ').join('');
-                const password = userId + '123';
+        document.getElementById('addUserForm').onsubmit = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('newUserName').value;
+            const email = document.getElementById('newUserEmail').value;
+            const role = document.getElementById('newUserRole').value;
+            const team = document.getElementById('newUserTeam').value;
+            const userId = name.toLowerCase().split(' ').join('');
+            const password = userId + '123';
 
-                // Check if email already exists
-                if (data.users.some(u => u.email === email)) {
-                    showNotification('A user with this email already exists', 'error');
-                    return;
-                }
+            // Check if email already exists
+            if (data.users.some(u => u.email === email)) {
+                showNotification('A user with this email already exists', 'error');
+                return;
+            }
 
-                const user = {
-                    id: generateId(),
-                    name, email, role, team: team || null, status: 'active', userId, password
-                };
-                data.users.push(user);
-                addActivity('user_create', `${name} was added as ${role}`);
-                showNotification('User added successfully!');
-                closeModal('addUserModal');
-                this.reset();
-                updateTables();
-                updateCharts();
+            const user = {
+                id: generateId(),
+                name, email, role, team: team || null, status: 'active', userId, password
             };
-        }
+            data.users.push(user);
+            addActivity('user_create', `${name} was added as ${role}`);
+            showNotification('User added successfully!');
+            closeModal('addUserModal');
+            this.reset();
+            updateTables();
+            updateCharts();
+        };
 
-        const createTeamForm = document.getElementById('createTeamForm');
-        if (createTeamForm) {
-            createTeamForm.onsubmit = function(e) {
-                e.preventDefault();
-                const name = document.getElementById('newTeamName').value;
-                const desc = document.getElementById('newTeamDescription').value;
-                const supervisorId = parseInt(document.getElementById('newTeamSupervisor').value);
+        document.getElementById('createTeamForm').onsubmit = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('newTeamName').value;
+            const desc = document.getElementById('newTeamDescription').value;
+            const supervisorId = parseInt(document.getElementById('newTeamSupervisor').value);
 
-                const supervisor = data.users.find(u => u.id === supervisorId);
-                if (!supervisor || !['admin', 'supervisor'].includes(supervisor.role)) {
-                    showNotification('Invalid supervisor selected', 'error');
-                    return;
-                }
+            const supervisor = data.users.find(u => u.id === supervisorId);
+            if (!supervisor || !['admin', 'supervisor'].includes(supervisor.role)) {
+                showNotification('Invalid supervisor selected', 'error');
+                return;
+            }
 
-                // Check if team name already exists
-                if (data.teams.some(t => t.name === name)) {
-                    showNotification('A team with this name already exists', 'error');
-                    return;
-                }
+            // Check if team name already exists
+            if (data.teams.some(t => t.name === name)) {
+                showNotification('A team with this name already exists', 'error');
+                return;
+            }
 
-                const team = {
-                    id: generateId(),
-                    name, description: desc, supervisor: supervisorId,
-                    members: [supervisorId], created: new Date().toISOString().split('T')[0]
-                };
-                data.teams.push(team);
-                addActivity('team_create', `Team "${name}" created`);
-                showNotification('Team created successfully!');
-                closeModal('createTeamModal');
-                this.reset();
-                updateTables();
-                updateCharts();
+            const team = {
+                id: generateId(),
+                name, description: desc, supervisor: supervisorId,
+                members: [supervisorId], created: new Date().toISOString().split('T')[0]
             };
-        }
+            data.teams.push(team);
+            addActivity('team_create', `Team "${name}" created`);
+            showNotification('Team created successfully!');
+            closeModal('createTeamModal');
+            this.reset();
+            updateTables();
+            updateCharts();
+        };
 
-        const assignTaskForm = document.getElementById('assignTaskForm');
-        if (assignTaskForm) {
-            assignTaskForm.onsubmit = function(e) {
-                e.preventDefault();
-                const title = document.getElementById('newTaskTitle').value;
-                const desc = document.getElementById('newTaskDescription').value;
-                const assigneeId = parseInt(document.getElementById('newTaskAssignee').value);
-                const dueDate = document.getElementById('newTaskDueDate').value;
-                const priority = document.getElementById('newTaskPriority').value;
-                const hours = parseFloat(document.getElementById('newTaskHours').value) || 0;
+        document.getElementById('assignTaskForm').onsubmit = function(e) {
+            e.preventDefault();
+            const title = document.getElementById('newTaskTitle').value;
+            const desc = document.getElementById('newTaskDescription').value;
+            const assigneeId = parseInt(document.getElementById('newTaskAssignee').value);
+            const dueDate = document.getElementById('newTaskDueDate').value;
+            const priority = document.getElementById('newTaskPriority').value;
+            const hours = parseFloat(document.getElementById('newTaskHours').value) || 0;
 
-                const assignee = getUserById(assigneeId);
-                if (!assignee) {
-                    showNotification('Please select a valid employee', 'error');
-                    return;
-                }
+            const assignee = getUserById(assigneeId);
+            if (!assignee) {
+                showNotification('Please select a valid employee', 'error');
+                return;
+            }
 
-                const team = assignee.team || 'General';
+            const team = assignee.team || 'General';
 
-                const task = {
-                    id: generateId(),
-                    title, description: desc, assignee: assigneeId, supervisor: currentUser.id,
-                    team, dueDate, priority, status: 'pending', progress: 0, estimatedHours: hours, created: new Date().toISOString().split('T')[0]
-                };
-                data.tasks.push(task);
-                addActivity('task_create', `Task "${title}" assigned to ${assignee.name}`);
-                showNotification('Task assigned successfully!');
-                closeModal('assignTaskModal');
-                this.reset();
-                updateTables();
-                updateCharts();
+            const task = {
+                id: generateId(),
+                title, description: desc, assignee: assigneeId, supervisor: currentUser.id,
+                team, dueDate, priority, status: 'pending', progress: 0, estimatedHours: hours, created: new Date().toISOString().split('T')[0]
             };
-        }
+            data.tasks.push(task);
+            addActivity('task_create', `Task "${title}" assigned to ${assignee.name}`);
+            showNotification('Task assigned successfully!');
+            closeModal('assignTaskModal');
+            this.reset();
+            updateTables();
+            updateCharts();
+        };
 
         // Table Updates
         function updateTables() {
@@ -1497,25 +1398,15 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
             const progressTasks = data.tasks.filter(t => t.status === 'progress').length;
             const overdueTasks = data.tasks.filter(t => t.status !== 'completed' && new Date(t.dueDate) < new Date()).length;
 
-            const totalTasksElement = document.getElementById('totalTasks');
-            const completedTasksElement = document.getElementById('completedTasks');
-            const progressTasksElement = document.getElementById('progressTasks');
-            const overdueTasksElement = document.getElementById('overdueTasks');
-            
-            if (totalTasksElement) totalTasksElement.textContent = totalTasks;
-            if (completedTasksElement) completedTasksElement.textContent = completedTasks;
-            if (progressTasksElement) progressTasksElement.textContent = progressTasks;
-            if (overdueTasksElement) overdueTasksElement.textContent = overdueTasks;
+            document.getElementById('totalTasks').textContent = totalTasks;
+            document.getElementById('completedTasks').textContent = completedTasks;
+            document.getElementById('progressTasks').textContent = progressTasks;
+            document.getElementById('overdueTasks').textContent = overdueTasks;
         }
 
         // Admin: Users Table
         function updateUsersTable() {
-            const usersTable = document.getElementById('usersTable');
-            if (!usersTable) return;
-            
-            const tbody = usersTable.querySelector('tbody');
-            if (!tbody) return;
-            
+            const tbody = document.querySelector('#usersTable tbody');
             tbody.innerHTML = '';
             data.users.forEach(user => {
                 const team = user.team || 'No Team';
@@ -1547,10 +1438,8 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
 
         // Teams
         function updateTeamsGrid() {
-            const teamsGrid = document.getElementById('teamsGrid');
-            if (!teamsGrid) return;
-            
-            teamsGrid.innerHTML = '';
+            const grid = document.getElementById('teamsGrid');
+            grid.innerHTML = '';
             data.teams.forEach(team => {
                 const supervisor = getUserById(team.supervisor);
                 const memberCount = team.members.length;
@@ -1564,7 +1453,7 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
                         <div style="display: flex; justify-content: space-between;"><span>Tasks:</span><strong>${teamTasks}</strong></div>
                         <button class="btn btn-small btn-danger" onclick="deleteTeam(${team.id})">Delete</button>
                     </div>`;
-                teamsGrid.innerHTML += card;
+                grid.innerHTML += card;
             });
         }
 
@@ -1583,12 +1472,7 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
 
         // Tasks
         function updateMyTasksTable() {
-            const myTasksTable = document.getElementById('myTasksTable');
-            if (!myTasksTable) return;
-            
-            const tbody = myTasksTable.querySelector('tbody');
-            if (!tbody) return;
-            
+            const tbody = document.querySelector('#myTasksTable tbody');
             tbody.innerHTML = '';
             
             // Determine which tasks to show based on user role
@@ -1608,20 +1492,16 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
             }
             
             // Apply filters
-            const taskSearch = document.getElementById('taskSearch');
-            const statusFilter = document.getElementById('statusFilter');
-            const priorityFilter = document.getElementById('priorityFilter');
-            
-            const searchTerm = taskSearch ? (taskSearch.value || '').toLowerCase() : '';
-            const statusFilterValue = statusFilter ? statusFilter.value || '' : '';
-            const priorityFilterValue = priorityFilter ? priorityFilter.value || '' : '';
+            const searchTerm = (document.getElementById('taskSearch')?.value || '').toLowerCase();
+            const statusFilter = document.getElementById('statusFilter')?.value || '';
+            const priorityFilter = document.getElementById('priorityFilter')?.value || '';
 
             if (searchTerm) userTasks = userTasks.filter(t => 
                 t.title.toLowerCase().includes(searchTerm) || 
                 t.description.toLowerCase().includes(searchTerm)
             );
-            if (statusFilterValue) userTasks = userTasks.filter(t => t.status === statusFilterValue);
-            if (priorityFilterValue) userTasks = userTasks.filter(t => t.priority === priorityFilterValue);
+            if (statusFilter) userTasks = userTasks.filter(t => t.status === statusFilter);
+            if (priorityFilter) userTasks = userTasks.filter(t => t.priority === priorityFilter);
 
             userTasks.forEach(task => {
                 const assignee = getUserById(task.assignee);
@@ -1649,8 +1529,6 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
         function updateTodaysTasks() {
             const today = getCurrentDate();
             const todaysTasksList = document.getElementById('todaysTasksList');
-            if (!todaysTasksList) return;
-            
             todaysTasksList.innerHTML = '';
             
             if (currentUser && currentUser.role === 'employee') {
@@ -1718,17 +1596,11 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
         // Calendar
         function updateCalendar() {
             const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-            const calendarMonth = document.getElementById('calendarMonth');
-            if (calendarMonth) {
-                calendarMonth.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
-            }
-            
+            document.getElementById('calendarMonth').textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
             const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
             const startDate = new Date(firstDay);
             startDate.setDate(startDate.getDate() - firstDay.getDay());
             const calendarDays = document.getElementById('calendarDays');
-            if (!calendarDays) return;
-            
             calendarDays.innerHTML = '';
             const today = new Date();
 
@@ -1783,12 +1655,8 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
 
         // Activity Log
         function updateActivityLog() {
-            const activityLog = document.getElementById('activityLog');
-            if (!activityLog) return;
-            
-            activityLog.innerHTML = '';
-            if (!data.activities) data.activities = [];
-            
+            const log = document.getElementById('activityLog');
+            log.innerHTML = '';
             data.activities.slice(0, 50).forEach(act => {
                 const user = getUserById(act.userId);
                 const timeAgo = getTimeAgo(act.timestamp);
@@ -1800,13 +1668,9 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
                             <div class="activity-time">${timeAgo} ${user ? `by ${user.name}` : ''}</div>
                         </div>
                     </div>`;
-                activityLog.innerHTML += item;
+                log.innerHTML += item;
             });
-            
-            const lastUpdated = document.getElementById('lastUpdated');
-            if (lastUpdated) {
-                lastUpdated.textContent = new Date().toLocaleTimeString();
-            }
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
         }
 
         function getActivityIcon(type) {
@@ -1829,55 +1693,49 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
 
         // Bulk Import
         function importFromExcel() {
-            const file = document.getElementById('excelFile');
-            if (!file || !file.files[0]) return showNotification('Please select a file', 'error');
-            
+            const file = document.getElementById('excelFile').files[0];
+            if (!file) return showNotification('Please select a file', 'error');
             const reader = new FileReader();
             reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonData = XLSX.utils.sheet_to_json(sheet);
-                    let imported = 0;
-                    jsonData.forEach(row => {
-                        if (row.Title && row.AssigneeEmail) {
-                            const assignee = data.users.find(u => u.email === row.AssigneeEmail);
-                            if (assignee) {
-                                data.tasks.push({
-                                    id: generateId(),
-                                    title: row.Title,
-                                    description: row.Description || '',
-                                    assignee: assignee.id,
-                                    supervisor: currentUser.id,
-                                    team: assignee.team,
-                                    dueDate: row.DueDate || new Date().toISOString().split('T')[0],
-                                    priority: row.Priority || 'medium',
-                                    status: 'pending',
-                                    progress: 0,
-                                    created: new Date().toISOString().split('T')[0]
-                                });
-                                imported++;
-                            }
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(sheet);
+                let imported = 0;
+                jsonData.forEach(row => {
+                    if (row.Title && row.AssigneeEmail) {
+                        const assignee = data.users.find(u => u.email === row.AssigneeEmail);
+                        if (assignee) {
+                            data.tasks.push({
+                                id: generateId(),
+                                title: row.Title,
+                                description: row.Description || '',
+                                assignee: assignee.id,
+                                supervisor: currentUser.id,
+                                team: assignee.team,
+                                dueDate: row.DueDate || new Date().toISOString().split('T')[0],
+                                priority: row.Priority || 'medium',
+                                status: 'pending',
+                                progress: 0,
+                                created: new Date().toISOString().split('T')[0]
+                            });
+                            imported++;
                         }
-                    });
-                    addActivity('task_create', `${imported} tasks imported from Excel`);
-                    showNotification(`${imported} tasks imported`);
-                    updateTables();
-                    updateCharts();
-                    closeModal('bulkTaskModal');
-                } catch (error) {
-                    showNotification('Error importing Excel file', 'error');
-                }
+                    }
+                });
+                addActivity('task_create', `${imported} tasks imported from Excel`);
+                showNotification(`${imported} tasks imported`);
+                updateTables();
+                updateCharts();
+                closeModal('bulkTaskModal');
             };
-            reader.readAsArrayBuffer(file.files[0]);
+            reader.readAsArrayBuffer(file);
         }
 
         function importBulkTasks() {
-            const input = document.getElementById('bulkTaskInput');
-            if (!input || !input.value.trim()) return showNotification('Enter task data', 'error');
-            
-            const lines = input.value.trim().split('\n');
+            const input = document.getElementById('bulkTaskInput').value.trim();
+            if (!input) return showNotification('Enter task data', 'error');
+            const lines = input.split('\n');
             let imported = 0;
             lines.forEach(line => {
                 const [title, desc, email, dueDate, priority] = line.split('|').map(s => s.trim());
@@ -1903,14 +1761,12 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
 
         // Export Data
         function exportData() {
-            if (!data.tasks || !data.users || !data.teams) return;
-            
             const wb = XLSX.utils.book_new();
             ['users', 'teams', 'tasks'].forEach(sheet => {
                 const ws = XLSX.utils.json_to_sheet(data[sheet]);
                 XLSX.utils.book_append_sheet(wb, ws, sheet.charAt(0).toUpperCase() + sheet.slice(1));
             });
-            XLSX.writeFile(wb, 'GBS_GL_Task_Data_Export.xlsx');
+            XLSX.writeFile(wb, 'TaskFlow_Data_Export.xlsx');
             showNotification('Data exported successfully!');
         }
 
@@ -1936,17 +1792,14 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
         }
 
         function createTaskDistributionChart() {
-            const ctx = document.getElementById('taskDistributionChart');
-            if (!ctx) return;
-            
-            const context = ctx.getContext('2d');
+            const ctx = document.getElementById('taskDistributionChart').getContext('2d');
             
             // Get all users who are not admins
             const employees = data.users.filter(u => u.role !== 'admin');
             const userNames = employees.map(u => u.name);
             const userTasks = employees.map(u => data.tasks.filter(t => t.assignee === u.id).length);
             
-            taskDistributionChart = new Chart(context, {
+            taskDistributionChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: userNames,
@@ -1996,10 +1849,7 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
         }
 
         function createTeamPerformanceChart() {
-            const ctx = document.getElementById('teamPerformanceChart');
-            if (!ctx) return;
-            
-            const context = ctx.getContext('2d');
+            const ctx = document.getElementById('teamPerformanceChart').getContext('2d');
             
             // Get data for each team
             const teamNames = data.teams.map(t => t.name);
@@ -2013,7 +1863,7 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
                 data.tasks.filter(task => task.team === t.name && task.status === 'overdue').length
             );
             
-            teamPerformanceChart = new Chart(context, {
+            teamPerformanceChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: teamNames,
@@ -2072,10 +1922,7 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
         }
 
         function createTeamTaskDistributionChart() {
-            const ctx = document.getElementById('teamTaskDistributionChart');
-            if (!ctx) return;
-            
-            const context = ctx.getContext('2d');
+            const ctx = document.getElementById('teamTaskDistributionChart').getContext('2d');
             
             // Get the supervisor's team
             const userTeam = data.users.find(u => u.id === currentUser.id)?.team;
@@ -2088,7 +1935,7 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
                 data.tasks.filter(t => t.assignee === m.id).length
             );
             
-            teamTaskDistributionChart = new Chart(context, {
+            teamTaskDistributionChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: memberNames,
@@ -2138,10 +1985,7 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
         }
 
         function createTeamProgressChart() {
-            const ctx = document.getElementById('teamProgressChart');
-            if (!ctx) return;
-            
-            const context = ctx.getContext('2d');
+            const ctx = document.getElementById('teamProgressChart').getContext('2d');
             
             // Get the supervisor's team
             const userTeam = data.users.find(u => u.id === currentUser.id)?.team;
@@ -2151,7 +1995,7 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
             const teamTasks = data.tasks.filter(t => t.team === userTeam);
             if (teamTasks.length === 0) {
                 // If no tasks, show a placeholder
-                teamProgressChart = new Chart(context, {
+                teamProgressChart = new Chart(ctx, {
                     type: 'doughnut',
                     data: {
                         labels: ['No Tasks Assigned'],
@@ -2182,7 +2026,7 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
             const pending = teamTasks.filter(t => t.status === 'pending').length;
             const overdue = teamTasks.filter(t => t.status === 'overdue').length;
             
-            teamProgressChart = new Chart(context, {
+            teamProgressChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Completed', 'In Progress', 'Pending', 'Overdue'],
@@ -2231,11 +2075,6 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
 
         // Initialize on load
         window.onload = function() {
-            // Initialize activities array if it doesn't exist
-            if (!data.activities) {
-                data.activities = [];
-            }
-            
             // Initialize dropdowns
             populateTeamSelectors();
             populateSupervisorSelector();
@@ -2298,15 +2137,11 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
         }
 
         function updateTeamOptions() {
-            const role = document.getElementById('newUserRole');
+            const role = document.getElementById('newUserRole').value;
             const teamSelect = document.getElementById('newUserTeam');
-            
-            if (!role || !teamSelect) return;
-            
-            const roleValue = role.value;
             teamSelect.innerHTML = '<option value="">Select Team (Optional)</option>';
             
-            if (roleValue === 'supervisor' || roleValue === 'employee') {
+            if (role === 'supervisor' || role === 'employee') {
                 data.teams.forEach(team => {
                     const option = document.createElement('option');
                     option.value = team.name;
@@ -2318,12 +2153,7 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
         
         // Recent Tasks Table
         function updateRecentTasksTable() {
-            const recentTasksTable = document.getElementById('recentTasksTable');
-            if (!recentTasksTable) return;
-            
-            const tbody = recentTasksTable.querySelector('tbody');
-            if (!tbody) return;
-            
+            const tbody = document.querySelector('#recentTasksTable tbody');
             tbody.innerHTML = '';
             
             // Get tasks based on current user's visibility
@@ -2362,12 +2192,7 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
         
         // Supervised Tasks Table
         function updateSupervisedTasksTable() {
-            const supervisedTasksTable = document.getElementById('supervisedTasksTable');
-            if (!supervisedTasksTable) return;
-            
-            const tbody = supervisedTasksTable.querySelector('tbody');
-            if (!tbody) return;
-            
+            const tbody = document.querySelector('#supervisedTasksTable tbody');
             tbody.innerHTML = '';
             
             // Get tasks based on current user's role
@@ -2379,13 +2204,9 @@ Update Website Content | Refresh homepage content | jane@company.com | 2025-09-2
             }
             
             // Apply filters
-            const assignedTaskSearch = document.getElementById('assignedTaskSearch');
-            const assignedTeamFilter = document.getElementById('assignedTeamFilter');
-            const assignedStatusFilter = document.getElementById('assignedStatusFilter');
-            
-            const searchTerm = assignedTaskSearch ? (assignedTaskSearch.value|| '').toLowerCase() : '';
-            const teamFilter = assignedTeamFilter ? assignedTeamFilter.value || '' : '';
-            const statusFilter = assignedStatusFilter ? assignedStatusFilter.value || '' : '';
+            const searchTerm = (document.getElementById('assignedTaskSearch')?.value|| '').toLowerCase();
+            const teamFilter = document.getElementById('assignedTeamFilter')?.value || '';
+            const statusFilter = document.getElementById('assignedStatusFilter')?.value || '';
 
             if (searchTerm) supervisedTasks = supervisedTasks.filter(t => 
                 t.title.toLowerCase().includes(searchTerm) || 
