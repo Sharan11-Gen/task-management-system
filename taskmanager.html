@@ -1,0 +1,2242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Task Management System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        /* Login Screen */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        .login-card h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        .login-card p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            text-align: left;
+        }
+        .form-group input {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .login-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            text-align: left;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        /* Main App Container */
+        .app {
+            display: none;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 1.8em;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .logout-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .logout-btn:hover {
+            background: #ff3838;
+        }
+        /* Navigation */
+        .nav-tabs {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0 30px;
+            display: flex;
+            gap: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .nav-tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+        .nav-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        .nav-tab:hover {
+            color: #667eea;
+        }
+        /* Main Content */
+        .main-content {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s;
+        }
+        .kpi-card:hover {
+            transform: translateY(-5px);
+        }
+        .kpi-card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .kpi-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+        }
+        /* Today's Tasks Section */
+        .todays-tasks {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+        .todays-tasks h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .task-list {
+            list-style: none;
+        }
+        .task-item {
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        .task-priority {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .priority-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .priority-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .priority-low {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        /* Tables */
+        .table-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            position: sticky;
+            top: 0;
+        }
+        tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .close-modal:hover {
+            background: #f0f0f0;
+        }
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        /* Status Badges */
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-progress {
+            background: #cce5ff;
+            color: #004085;
+        }
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-overdue {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        /* Priority Badges */
+        .priority-low {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .priority-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .priority-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .priority-critical {
+            background: #721c24;
+            color: white;
+        }
+        /* Calendar */
+        .calendar-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .calendar-nav {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #667eea;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .calendar-nav:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            margin-top: 20px;
+        }
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .calendar-day:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        .calendar-day.today {
+            background: #667eea;
+            color: white;
+        }
+        .calendar-day.has-tasks {
+            background: #fff3cd;
+        }
+        .calendar-day.has-tasks::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            width: 6px;
+            height: 6px;
+            background: #667eea;
+            border-radius: 50%;
+        }
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+        }
+        .notification.show {
+            transform: translateX(0);
+        }
+        .notification.success {
+            background: #28a745;
+        }
+        .notification.error {
+            background: #dc3545;
+        }
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filters input,
+        .filters select {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        /* Activity Log */
+        .activity-log {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+        .activity-details {
+            flex: 1;
+        }
+        .activity-time {
+            color: #666;
+            font-size: 12px;
+        }
+        /* Bulk Import */
+        .bulk-import {
+            border: 2px dashed #667eea;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .file-input {
+            margin: 15px 0;
+        }
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s;
+        }
+        /* Chart Container */
+        .chart-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+        .chart-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+        .chart-box {
+            flex: 1;
+            min-width: 300px;
+            height: 400px;
+        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+            .header h1 {
+                font-size: 1.4em;
+            }
+            .main-content {
+                padding: 20px;
+            }
+            .nav-tabs {
+                padding: 0 20px;
+                overflow-x: auto;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .filters {
+                flex-direction: column;
+            }
+            .modal-content {
+                margin: 20px;
+                width: calc(100% - 40px);
+            }
+            .chart-wrapper {
+                flex-direction: column;
+            }
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-card">
+            <h1>🏢 TaskFlow Pro</h1>
+            <p>Enterprise Task Management System</p>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="userId">User ID</label>
+                    <input type="text" id="userId" placeholder="Enter your user ID" required>
+                    <div class="error-message" id="userIdError">Please enter a valid user ID</div>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                    <div class="error-message" id="passwordError">Please enter your password</div>
+                </div>
+                <button type="submit" class="login-btn">Login</button>
+            </form>
+        </div>
+    </div>
+    <!-- Main Application -->
+    <div class="app" id="mainApp">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏢 TaskFlow Pro</h1>
+            <div class="user-info">
+                <div class="avatar" id="userAvatar">A</div>
+                <div>
+                    <div id="userName">Admin User</div>
+                    <div style="font-size: 12px; color: #666;" id="userRole">Administrator</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="showTab('dashboard')">📊 Dashboard</div>
+            <div class="nav-tab admin-only" onclick="showTab('admin')">⚙️ Admin Panel</div>
+            <div class="nav-tab admin-only supervisor-only" onclick="showTab('teams')">👥 Teams</div>
+            <div class="nav-tab" onclick="showTab('tasks')">📝 My Tasks</div>
+            <div class="nav-tab supervisor-only admin-only" onclick="showTab('assign')">➕ Assign Tasks</div>
+            <div class="nav-tab" onclick="showTab('calendar')">📅 Calendar</div>
+            <div class="nav-tab admin-only" onclick="showTab('analytics')">📈 Analytics</div>
+            <div class="nav-tab admin-only" onclick="showTab('activity')">📋 Activity Log</div>
+        </div>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Dashboard Tab -->
+            <div class="tab-content active" id="dashboard">
+                <div class="dashboard-grid">
+                    <div class="kpi-card">
+                        <h3>Total Tasks</h3>
+                        <div class="value" id="totalTasks">0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <h3>Completed</h3>
+                        <div class="value" id="completedTasks">0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <h3>In Progress</h3>
+                        <div class="value" id="progressTasks">0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <h3>Overdue</h3>
+                        <div class="value" id="overdueTasks">0</div>
+                    </div>
+                </div>
+                
+                <!-- Today's Tasks for Employee -->
+                <div class="todays-tasks" id="todaysTasksSection">
+                    <h3>📅 Today's Tasks</h3>
+                    <ul class="task-list" id="todaysTasksList">
+                        <!-- Tasks will be populated here -->
+                    </ul>
+                </div>
+            </div>
+            <!-- Admin Panel Tab -->
+            <div class="tab-content" id="admin">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <h2>Admin Panel</h2>
+                    <div style="display: flex; gap: 15px;">
+                        <button class="btn" onclick="openModal('addUserModal')">
+                            👤 Add User
+                        </button>
+                        <button class="btn" onclick="openModal('createTeamModal')">
+                            👥 Create Team
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportData()">
+                            📊 Export Data
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <h3 style="margin-bottom: 20px;">System Users</h3>
+                    <table id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Team</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Teams Tab -->
+            <div class="tab-content" id="teams">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <h2>Team Management</h2>
+                    <button class="btn" onclick="openModal('createTeamModal')">
+                        👥 Create Team
+                    </button>
+                </div>
+                <div class="dashboard-grid" id="teamsGrid">
+                    <!-- Teams will be populated here -->
+                </div>
+            </div>
+            <!-- My Tasks Tab -->
+            <div class="tab-content" id="tasks">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <h2>My Tasks</h2>
+                </div>
+                <div class="filters">
+                    <input type="text" placeholder="Search tasks..." id="taskSearch">
+                    <select id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                    <select id="priorityFilter">
+                        <option value="">All Priority</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+                <div class="table-container">
+                    <table id="myTasksTable">
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Description</th>
+                                <th>Due Date</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Assign Tasks Tab -->
+            <div class="tab-content" id="assign">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <h2>Assign Tasks</h2>
+                    <div style="display: flex; gap: 15px;">
+                        <button class="btn" onclick="openModal('assignTaskModal')">
+                            ➕ Assign Single Task
+                        </button>
+                        <button class="btn" onclick="openModal('bulkTaskModal')">
+                            📋 Bulk Import
+                        </button>
+                    </div>
+                </div>
+                <div class="filters">
+                    <input type="text" placeholder="Search assigned tasks..." id="assignedTaskSearch">
+                    <select id="assignedTeamFilter">
+                        <option value="">All Teams</option>
+                    </select>
+                    <select id="assignedStatusFilter">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                </div>
+                <div class="table-container">
+                    <h3 style="margin-bottom: 20px;">Supervised Tasks</h3>
+                    <table id="supervisedTasksTable">
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Assigned To</th>
+                                <th>Team</th>
+                                <th>Due Date</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Calendar Tab -->
+            <div class="tab-content" id="calendar">
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <button class="calendar-nav" onclick="changeMonth(-1)">‹</button>
+                        <h2 id="calendarMonth">January 2025</h2>
+                        <button class="calendar-nav" onclick="changeMonth(1)">›</button>
+                    </div>
+                    <div class="calendar-grid">
+                        <div style="text-align: center; font-weight: bold; padding: 10px;">Sun</div>
+                        <div style="text-align: center; font-weight: bold; padding: 10px;">Mon</div>
+                        <div style="text-align: center; font-weight: bold; padding: 10px;">Tue</div>
+                        <div style="text-align: center; font-weight: bold; padding: 10px;">Wed</div>
+                        <div style="text-align: center; font-weight: bold; padding: 10px;">Thu</div>
+                        <div style="text-align: center; font-weight: bold; padding: 10px;">Fri</div>
+                        <div style="text-align: center; font-weight: bold; padding: 10px;">Sat</div>
+                    </div>
+                    <div class="calendar-grid" id="calendarDays">
+                        <!-- Calendar days will be populated here -->
+                    </div>
+                </div>
+            </div>
+            <!-- Analytics Tab -->
+            <div class="tab-content" id="analytics">
+                <h2 style="margin-bottom: 30px;">📊 Task Analytics</h2>
+                
+                <!-- Admin Analytics -->
+                <div id="adminAnalytics" class="chart-container">
+                    <h3 style="margin-bottom: 20px;">Task Distribution Across All Teams</h3>
+                    <div class="chart-wrapper">
+                        <div class="chart-box">
+                            <canvas id="taskDistributionChart"></canvas>
+                        </div>
+                        <div class="chart-box">
+                            <canvas id="teamPerformanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Supervisor Analytics -->
+                <div id="supervisorAnalytics" class="chart-container">
+                    <h3 style="margin-bottom: 20px;">Your Team Task Overview</h3>
+                    <div class="chart-wrapper">
+                        <div class="chart-box">
+                            <canvas id="teamTaskDistributionChart"></canvas>
+                        </div>
+                        <div class="chart-box">
+                            <canvas id="teamProgressChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Activity Log Tab -->
+            <div class="tab-content" id="activity">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <h2>Activity Log</h2>
+                    <div style="color: #666; font-size: 14px;">
+                        Last updated: <span id="lastUpdated">Now</span>
+                    </div>
+                </div>
+                <div class="activity-log" id="activityLog">
+                    <!-- Activity items will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add User Modal -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New User</h3>
+                <button class="close-modal" onclick="closeModal('addUserModal')">×</button>
+            </div>
+            <form id="addUserForm">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="newUserName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="newUserEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="newUserRole" required onchange="updateTeamOptions()">
+                        <option value="">Select Role</option>
+                        <option value="admin">Administrator</option>
+                        <option value="supervisor">Supervisor</option>
+                        <option value="employee">Employee</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Team</label>
+                    <select id="newUserTeam">
+                        <option value="">Select Team (Optional)</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 15px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addUserModal')">Cancel</button>
+                    <button type="submit" class="btn">Add User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Team Modal -->
+    <div class="modal" id="createTeamModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Team</h3>
+                <button class="close-modal" onclick="closeModal('createTeamModal')">×</button>
+            </div>
+            <form id="createTeamForm">
+                <div class="form-group">
+                    <label>Team Name</label>
+                    <input type="text" id="newTeamName" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="newTeamDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Team Supervisor</label>
+                    <select id="newTeamSupervisor" required>
+                        <option value="">Select Supervisor</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 15px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('createTeamModal')">Cancel</button>
+                    <button type="submit" class="btn">Create Team</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Assign Task Modal -->
+    <div class="modal" id="assignTaskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Assign New Task</h3>
+                <button class="close-modal" onclick="closeModal('assignTaskModal')">×</button>
+            </div>
+            <form id="assignTaskForm">
+                <div class="form-group">
+                    <label>Task Title</label>
+                    <input type="text" id="newTaskTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="newTaskDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Assign To</label>
+                    <select id="newTaskAssignee" required>
+                        <option value="">Select Employee</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" id="newTaskDueDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select id="newTaskPriority" required>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Estimated Hours</label>
+                    <input type="number" id="newTaskHours" min="0.5" step="0.5">
+                </div>
+                <div style="display: flex; gap: 15px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('assignTaskModal')">Cancel</button>
+                    <button type="submit" class="btn">Assign Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bulk Task Import Modal -->
+    <div class="modal" id="bulkTaskModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Bulk Task Import</h3>
+                <button class="close-modal" onclick="closeModal('bulkTaskModal')">×</button>
+            </div>
+            <div style="margin-bottom: 25px;">
+                <h4>Method 1: Excel Import</h4>
+                <div class="bulk-import">
+                    <p>📊 Upload an Excel file (.xlsx) with task data</p>
+                    <input type="file" id="excelFile" accept=".xlsx" class="file-input">
+                    <button type="button" class="btn" onclick="importFromExcel()">Import Excel</button>
+                </div>
+            </div>
+            <div style="margin-bottom: 25px;">
+                <h4>Method 2: Manual Entry</h4>
+                <div class="form-group">
+                    <label>Paste tasks (one per line, separated by | )</label>
+                    <small style="color: #666;">Format: Title | Description | Assignee Email | Due Date (YYYY-MM-DD) | Priority</small>
+                    <textarea id="bulkTaskInput" rows="8" placeholder="Example:
+Review Q1 Reports | Check financial reports for accuracy | john@company.com | 2025-09-15 | high
+Update Website Content | Refresh homepage content | jane@company.com | 2025-09-20 | medium"></textarea>
+                </div>
+                <button type="button" class="btn" onclick="importBulkTasks()">Import Tasks</button>
+            </div>
+            <div style="display: flex; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('bulkTaskModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div class="modal" id="taskDetailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Task Details</h3>
+                <button class="close-modal" onclick="closeModal('taskDetailModal')">×</button>
+            </div>
+            <div id="taskDetailContent">
+                <!-- Task details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global Variables
+        let currentUser = null;
+        let currentDate = new Date();
+        let data = {
+            users: [
+                { id: 1, name: 'Admin User', email: 'admin@company.com', role: 'admin', team: null, status: 'active', userId: 'admin', password: 'admin123' },
+                { id: 2, name: 'John Smith', email: 'john@company.com', role: 'supervisor', team: 'Engineering', status: 'active', userId: 'john', password: 'john123' },
+                { id: 3, name: 'Jane Doe', email: 'jane@company.com', role: 'employee', team: 'Engineering', status: 'active', userId: 'jane', password: 'jane123' },
+                { id: 4, name: 'Mike Johnson', email: 'mike@company.com', role: 'supervisor', team: 'Marketing', status: 'active', userId: 'mike', password: 'mike123' },
+                { id: 5, name: 'Sarah Wilson', email: 'sarah@company.com', role: 'employee', team: 'Marketing', status: 'active', userId: 'sarah', password: 'sarah123' }
+            ],
+            teams: [
+                { id: 1, name: 'Engineering', description: 'Software development and technical operations', supervisor: 2, members: [2, 3], created: '2025-01-01' },
+                { id: 2, name: 'Marketing', description: 'Marketing campaigns and brand management', supervisor: 4, members: [4, 5], created: '2025-01-01' }
+            ],
+            tasks: [
+                { id: 1, title: 'Setup Development Environment', description: 'Configure development tools and environments', assignee: 3, supervisor: 2, team: 'Engineering', dueDate: getCurrentDate(), priority: 'high', status: 'progress', progress: 60, estimatedHours: 8, created: '2025-08-20' },
+                { id: 2, title: 'Create Marketing Campaign', description: 'Design Q4 marketing campaign strategy', assignee: 5, supervisor: 4, team: 'Marketing', dueDate: '2025-09-25', priority: 'medium', status: 'pending', progress: 0, estimatedHours: 16, created: '2025-08-21' },
+                { id: 3, title: 'Code Review Process', description: 'Implement automated code review workflow', assignee: 3, supervisor: 2, team: 'Engineering', dueDate: '2025-08-18', priority: 'critical', status: 'overdue', progress: 30, estimatedHours: 12, created: '2025-08-15' }
+            ],
+            activities: []
+        };
+
+        // Chart variables
+        let taskDistributionChart = null;
+        let teamPerformanceChart = null;
+        let teamTaskDistributionChart = null;
+        let teamProgressChart = null;
+
+        // Utility Functions
+        function generateId() {
+            return Date.now() + Math.random();
+        }
+        function getCurrentDate() {
+            const today = new Date();
+            return today.toISOString().split('T')[0];
+        }
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString();
+        }
+        function getStatusClass(status) {
+            return `status-badge status-${status}`;
+        }
+        function getPriorityClass(priority) {
+            return `status-badge priority-${priority}`;
+        }
+        function getUserById(id) {
+            return data.users.find(user => user.id === id);
+        }
+        function getTeamById(id) {
+            return data.teams.find(team => team.id === id);
+        }
+        function getUserByUserId(userId) {
+            return data.users.find(user => user.userId === userId);
+        }
+        function addActivity(type, description, userId = null) {
+            const activity = {
+                id: generateId(),
+                type: type,
+                description: description,
+                userId: userId || (currentUser ? currentUser.id : null),
+                timestamp: new Date().toISOString()
+            };
+            data.activities.unshift(activity);
+            updateActivityLog();
+        }
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.classList.add('show'), 100);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Authentication Functions
+        document.getElementById('loginForm').onsubmit = function(e) {
+            e.preventDefault();
+            
+            // Reset error messages
+            document.getElementById('userIdError').style.display = 'none';
+            document.getElementById('passwordError').style.display = 'none';
+            
+            const userId = document.getElementById('userId').value.trim();
+            const password = document.getElementById('password').value.trim();
+            let isValid = true;
+            
+            if (!userId) {
+                document.getElementById('userIdError').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!password) {
+                document.getElementById('passwordError').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            const user = data.users.find(u => u.userId === userId && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                updateUserInterface();
+                showTab('dashboard');
+                addActivity('login', `${currentUser.name} logged in`, currentUser.id);
+                showNotification(`Welcome back, ${currentUser.name}!`);
+            } else {
+                showNotification('Invalid user ID or password', 'error');
+            }
+        };
+
+        function logout() {
+            if (currentUser) {
+                addActivity('logout', `${currentUser.name} logged out`, currentUser.id);
+            }
+            currentUser = null;
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('loginForm').reset();
+        }
+        
+        function updateUserInterface() {
+            if (!currentUser) return;
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userRole').textContent = currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
+            document.getElementById('userAvatar').textContent = currentUser.name.charAt(0);
+
+            const adminElements = document.querySelectorAll('.admin-only');
+            const supervisorElements = document.querySelectorAll('.supervisor-only');
+            adminElements.forEach(el => {
+                el.style.display = currentUser.role === 'admin' ? 'block' : 'none';
+            });
+            supervisorElements.forEach(el => {
+                el.style.display = ['admin', 'supervisor'].includes(currentUser.role) ? 'block' : 'none';
+            });
+
+            // Show/hide analytics based on role
+            document.getElementById('adminAnalytics').style.display = currentUser.role === 'admin' ? 'block' : 'none';
+            document.getElementById('supervisorAnalytics').style.display = currentUser.role === 'supervisor' ? 'block' : 'none';
+            
+            // Hide today's tasks section for non-employees
+            document.getElementById('todaysTasksSection').style.display = currentUser.role === 'employee' ? 'block' : 'none';
+
+            updateDashboard();
+            updateTables();
+            updateCharts();
+        }
+
+        // Tab Navigation
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            switch(tabName) {
+                case 'dashboard': updateDashboard(); break;
+                case 'admin': updateUsersTable(); break;
+                case 'teams': updateTeamsGrid(); break;
+                case 'tasks': updateMyTasksTable(); break;
+                case 'assign': updateSupervisedTasksTable(); break;
+                case 'calendar': updateCalendar(); break;
+                case 'analytics': updateCharts(); break;
+                case 'activity': updateActivityLog(); break;
+            }
+        }
+
+        // Modal Functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+            if (modalId === 'addUserModal') {
+                populateTeamSelectors();
+                populateSupervisorSelector();
+            } else if (modalId === 'createTeamModal') {
+                populateSupervisorSelector();
+            } else if (modalId === 'assignTaskModal') {
+                populateEmployeeSelector();
+            }
+        }
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Form Handlers
+        document.getElementById('addUserForm').onsubmit = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('newUserName').value;
+            const email = document.getElementById('newUserEmail').value;
+            const role = document.getElementById('newUserRole').value;
+            const team = document.getElementById('newUserTeam').value;
+            const userId = name.toLowerCase().split(' ').join('');
+            const password = userId + '123';
+
+            // Check if email already exists
+            if (data.users.some(u => u.email === email)) {
+                showNotification('A user with this email already exists', 'error');
+                return;
+            }
+
+            const user = {
+                id: generateId(),
+                name, email, role, team: team || null, status: 'active', userId, password
+            };
+            data.users.push(user);
+            addActivity('user_create', `${name} was added as ${role}`);
+            showNotification('User added successfully!');
+            closeModal('addUserModal');
+            this.reset();
+            updateTables();
+            updateCharts();
+        };
+
+        document.getElementById('createTeamForm').onsubmit = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('newTeamName').value;
+            const desc = document.getElementById('newTeamDescription').value;
+            const supervisorId = parseInt(document.getElementById('newTeamSupervisor').value);
+
+            const supervisor = data.users.find(u => u.id === supervisorId);
+            if (!supervisor || !['admin', 'supervisor'].includes(supervisor.role)) {
+                showNotification('Invalid supervisor selected', 'error');
+                return;
+            }
+
+            // Check if team name already exists
+            if (data.teams.some(t => t.name === name)) {
+                showNotification('A team with this name already exists', 'error');
+                return;
+            }
+
+            const team = {
+                id: generateId(),
+                name, description: desc, supervisor: supervisorId,
+                members: [supervisorId], created: new Date().toISOString().split('T')[0]
+            };
+            data.teams.push(team);
+            addActivity('team_create', `Team "${name}" created`);
+            showNotification('Team created successfully!');
+            closeModal('createTeamModal');
+            this.reset();
+            updateTables();
+            updateCharts();
+        };
+
+        document.getElementById('assignTaskForm').onsubmit = function(e) {
+            e.preventDefault();
+            const title = document.getElementById('newTaskTitle').value;
+            const desc = document.getElementById('newTaskDescription').value;
+            const assigneeId = parseInt(document.getElementById('newTaskAssignee').value);
+            const dueDate = document.getElementById('newTaskDueDate').value;
+            const priority = document.getElementById('newTaskPriority').value;
+            const hours = parseFloat(document.getElementById('newTaskHours').value) || 0;
+
+            const assignee = getUserById(assigneeId);
+            if (!assignee) {
+                showNotification('Please select a valid employee', 'error');
+                return;
+            }
+
+            const team = assignee.team || 'General';
+
+            const task = {
+                id: generateId(),
+                title, description: desc, assignee: assigneeId, supervisor: currentUser.id,
+                team, dueDate, priority, status: 'pending', progress: 0, estimatedHours: hours, created: new Date().toISOString().split('T')[0]
+            };
+            data.tasks.push(task);
+            addActivity('task_create', `Task "${title}" assigned to ${assignee.name}`);
+            showNotification('Task assigned successfully!');
+            closeModal('assignTaskModal');
+            this.reset();
+            updateTables();
+            updateCharts();
+        };
+
+        // Table Updates
+        function updateTables() {
+            updateUsersTable();
+            updateTeamsGrid();
+            updateMyTasksTable();
+            updateSupervisedTasksTable();
+            updateRecentTasksTable();
+            updateDashboard();
+            updateCalendar();
+            updateTodaysTasks();
+        }
+
+        // Dashboard
+        function updateDashboard() {
+            // Get total tasks based on user role
+            let totalTasks = 0;
+            if (currentUser.role === 'admin') {
+                totalTasks = data.tasks.length;
+            } else if (currentUser.role === 'supervisor') {
+                const userTeam = data.users.find(u => u.id === currentUser.id)?.team;
+                totalTasks = data.tasks.filter(t => {
+                    const assignee = getUserById(t.assignee);
+                    return assignee && assignee.team === userTeam;
+                }).length;
+            } else {
+                totalTasks = data.tasks.filter(t => t.assignee === currentUser.id).length;
+            }
+            
+            const completedTasks = data.tasks.filter(t => t.status === 'completed').length;
+            const progressTasks = data.tasks.filter(t => t.status === 'progress').length;
+            const overdueTasks = data.tasks.filter(t => t.status !== 'completed' && new Date(t.dueDate) < new Date()).length;
+
+            document.getElementById('totalTasks').textContent = totalTasks;
+            document.getElementById('completedTasks').textContent = completedTasks;
+            document.getElementById('progressTasks').textContent = progressTasks;
+            document.getElementById('overdueTasks').textContent = overdueTasks;
+        }
+
+        // Admin: Users Table
+        function updateUsersTable() {
+            const tbody = document.querySelector('#usersTable tbody');
+            tbody.innerHTML = '';
+            data.users.forEach(user => {
+                const team = user.team || 'No Team';
+                const row = `
+                    <tr>
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td><span class="status-badge">${user.role}</span></td>
+                        <td>${team}</td>
+                        <td><span class="status-badge status-completed">${user.status}</span></td>
+                        <td><button class="btn btn-small btn-danger" onclick="deleteUser(${user.id})">Delete</button></td>
+                    </tr>`;
+                tbody.innerHTML += row;
+            });
+            populateTeamSelectors();
+        }
+
+        function deleteUser(id) {
+            const user = getUserById(id);
+            if (user && confirm(`Delete user ${user.name}?`)) {
+                data.users = data.users.filter(u => u.id !== id);
+                data.tasks = data.tasks.filter(t => t.assignee !== id && t.supervisor !== id);
+                addActivity('user_delete', `${user.name} was deleted`);
+                showNotification('User deleted');
+                updateTables();
+                updateCharts();
+            }
+        }
+
+        // Teams
+        function updateTeamsGrid() {
+            const grid = document.getElementById('teamsGrid');
+            grid.innerHTML = '';
+            data.teams.forEach(team => {
+                const supervisor = getUserById(team.supervisor);
+                const memberCount = team.members.length;
+                const teamTasks = data.tasks.filter(t => t.team === team.name).length;
+                const card = `
+                    <div class="kpi-card">
+                        <h3>${team.name}</h3>
+                        <p style="color: #666;">${team.description}</p>
+                        <div style="display: flex; justify-content: space-between;"><span>Supervisor:</span><strong>${supervisor?.name || 'None'}</strong></div>
+                        <div style="display: flex; justify-content: space-between;"><span>Members:</span><strong>${memberCount}</strong></div>
+                        <div style="display: flex; justify-content: space-between;"><span>Tasks:</span><strong>${teamTasks}</strong></div>
+                        <button class="btn btn-small btn-danger" onclick="deleteTeam(${team.id})">Delete</button>
+                    </div>`;
+                grid.innerHTML += card;
+            });
+        }
+
+        function deleteTeam(id) {
+            const team = getTeamById(id);
+            if (team && confirm(`Delete team "${team.name}"?`)) {
+                data.teams = data.teams.filter(t => t.id !== id);
+                data.tasks = data.tasks.filter(t => t.team !== team.name);
+                data.users = data.users.map(u => u.team === team.name ? { ...u, team: null } : u);
+                addActivity('team_delete', `Team "${team.name}" deleted`);
+                showNotification('Team deleted');
+                updateTables();
+                updateCharts();
+            }
+        }
+
+        // Tasks
+        function updateMyTasksTable() {
+            const tbody = document.querySelector('#myTasksTable tbody');
+            tbody.innerHTML = '';
+            
+            // Determine which tasks to show based on user role
+            let userTasks = [];
+            if (currentUser.role === 'admin') {
+                userTasks = data.tasks; // Admin sees all tasks
+            } else if (currentUser.role === 'supervisor') {
+                // Supervisor sees tasks assigned to their team members
+                const userTeam = data.users.find(u => u.id === currentUser.id)?.team;
+                userTasks = data.tasks.filter(t => {
+                    const assignee = getUserById(t.assignee);
+                    return assignee && assignee.team === userTeam;
+                });
+            } else {
+                // Employee sees only their own tasks
+                userTasks = data.tasks.filter(t => t.assignee === currentUser.id);
+            }
+            
+            // Apply filters
+            const searchTerm = (document.getElementById('taskSearch')?.value || '').toLowerCase();
+            const statusFilter = document.getElementById('statusFilter')?.value || '';
+            const priorityFilter = document.getElementById('priorityFilter')?.value || '';
+
+            if (searchTerm) userTasks = userTasks.filter(t => 
+                t.title.toLowerCase().includes(searchTerm) || 
+                t.description.toLowerCase().includes(searchTerm)
+            );
+            if (statusFilter) userTasks = userTasks.filter(t => t.status === statusFilter);
+            if (priorityFilter) userTasks = userTasks.filter(t => t.priority === priorityFilter);
+
+            userTasks.forEach(task => {
+                const assignee = getUserById(task.assignee);
+                const row = `
+                    <tr>
+                        <td>${task.title}</td>
+                        <td>${task.description}</td>
+                        <td>${formatDate(task.dueDate)}</td>
+                        <td><span class="${getPriorityClass(task.priority)}">${task.priority}</span></td>
+                        <td><span class="${getStatusClass(task.status)}">${task.status}</span></td>
+                        <td>
+                            <div class="progress-bar"><div class="progress-fill" style="width:${task.progress}%"></div></div>
+                            <small>${task.progress}%</small>
+                        </td>
+                        <td>
+                            <button class="btn btn-small" onclick="updateTaskProgress(${task.id})">Update</button>
+                            ${currentUser.role !== 'employee' ? `<button class="btn btn-small btn-danger" onclick="deleteTask(${task.id})">Delete</button>` : ''}
+                        </td>
+                    </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // Today's Tasks for Employee Dashboard
+        function updateTodaysTasks() {
+            const today = getCurrentDate();
+            const todaysTasksList = document.getElementById('todaysTasksList');
+            todaysTasksList.innerHTML = '';
+            
+            if (currentUser && currentUser.role === 'employee') {
+                const todaysTasks = data.tasks.filter(t => 
+                    t.assignee === currentUser.id && 
+                    t.dueDate === today
+                );
+                
+                if (todaysTasks.length === 0) {
+                    const li = document.createElement('li');
+                    li.className = 'task-item';
+                    li.textContent = 'No tasks due today';
+                    todaysTasksList.appendChild(li);
+                } else {
+                    todaysTasks.forEach(task => {
+                        const li = document.createElement('li');
+                        li.className = 'task-item';
+                        
+                        const taskContent = document.createElement('span');
+                        taskContent.textContent = task.title;
+                        
+                        const priorityBadge = document.createElement('span');
+                        priorityBadge.className = `task-priority priority-${task.priority}`;
+                        priorityBadge.textContent = task.priority;
+                        
+                        li.appendChild(taskContent);
+                        li.appendChild(priorityBadge);
+                        todaysTasksList.appendChild(li);
+                    });
+                }
+            }
+        }
+
+        function updateTaskProgress(taskId) {
+            const task = data.tasks.find(t => t.id === taskId);
+            if (!task) return;
+            const newProgress = prompt(`Progress for "${task.title}" (0-100):`, task.progress);
+            if (newProgress === null) return;
+            const progress = parseInt(newProgress);
+            if (isNaN(progress) || progress < 0 || progress > 100) {
+                showNotification('Invalid progress value', 'error');
+                return;
+            }
+            task.progress = progress;
+            if (progress === 0) task.status = 'pending';
+            else if (progress === 100) task.status = 'completed';
+            else task.status = 'progress';
+            addActivity('task_update', `Progress updated for "${task.title}" to ${progress}%`);
+            showNotification('Updated!');
+            updateTables();
+            updateCharts();
+        }
+
+        function deleteTask(id) {
+            const task = data.tasks.find(t => t.id === id);
+            if (task && confirm(`Delete task "${task.title}"?`)) {
+                data.tasks = data.tasks.filter(t => t.id !== id);
+                addActivity('task_delete', `Task "${task.title}" deleted`);
+                showNotification('Task deleted');
+                updateTables();
+                updateCharts();
+            }
+        }
+
+        // Calendar
+        function updateCalendar() {
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('calendarMonth').textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            const calendarDays = document.getElementById('calendarDays');
+            calendarDays.innerHTML = '';
+            const today = new Date();
+
+            for (let i = 0; i < 42; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = date.getDate();
+                const dateString = date.toISOString().split('T')[0];
+                if (data.tasks.some(t => t.dueDate === dateString)) dayElement.classList.add('has-tasks');
+                if (date.toDateString() === today.toDateString()) dayElement.classList.add('today');
+                if (date.getMonth() !== currentDate.getMonth()) dayElement.style.opacity = '0.3';
+                dayElement.onclick = () => showTasksForDate(dateString);
+                calendarDays.appendChild(dayElement);
+            }
+        }
+
+        function changeMonth(dir) {
+            currentDate.setMonth(currentDate.getMonth() + dir);
+            updateCalendar();
+        }
+
+        function showTasksForDate(dateString) {
+            // Filter tasks based on current user's visibility
+            let tasks = [];
+            if (currentUser.role === 'admin') {
+                tasks = data.tasks.filter(t => t.dueDate === dateString);
+            } else if (currentUser.role === 'supervisor') {
+                const userTeam = data.users.find(u => u.id === currentUser.id)?.team;
+                tasks = data.tasks.filter(t => 
+                    t.dueDate === dateString && 
+                    getUserById(t.assignee)?.team === userTeam
+                );
+            } else {
+                tasks = data.tasks.filter(t => 
+                    t.dueDate === dateString && 
+                    t.assignee === currentUser.id
+                );
+            }
+            
+            if (tasks.length === 0) {
+                showNotification('No tasks due on this date', 'error');
+                return;
+            }
+            const list = tasks.map(t => {
+                const assignee = getUserById(t.assignee);
+                return `• ${t.title} (${assignee ? assignee.name : 'Unknown'}) - ${t.priority}`;
+            }).join('\n');
+            alert(`Tasks due on ${formatDate(dateString)}:\n${list}`);
+        }
+
+        // Activity Log
+        function updateActivityLog() {
+            const log = document.getElementById('activityLog');
+            log.innerHTML = '';
+            data.activities.slice(0, 50).forEach(act => {
+                const user = getUserById(act.userId);
+                const timeAgo = getTimeAgo(act.timestamp);
+                const item = `
+                    <div class="activity-item">
+                        <div class="activity-icon">${getActivityIcon(act.type)}</div>
+                        <div class="activity-details">
+                            <div>${act.description}</div>
+                            <div class="activity-time">${timeAgo} ${user ? `by ${user.name}` : ''}</div>
+                        </div>
+                    </div>`;
+                log.innerHTML += item;
+            });
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+        }
+
+        function getActivityIcon(type) {
+            const icons = {
+                login: '🔐', logout: '🚪', task_create: '➕', task_update: '✏️',
+                task_delete: '🗑️', user_create: '👤', user_delete: '❌',
+                team_create: '👥', team_delete: '🗑️'
+            };
+            return icons[type] || '📝';
+        }
+
+        function getTimeAgo(timestamp) {
+            const now = new Date(), past = new Date(timestamp), diffMs = now - past;
+            const diffMins = Math.floor(diffMs / 60000), diffHours = Math.floor(diffMins / 60), diffDays = Math.floor(diffHours / 24);
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            return `${diffDays}d ago`;
+        }
+
+        // Bulk Import
+        function importFromExcel() {
+            const file = document.getElementById('excelFile').files[0];
+            if (!file) return showNotification('Please select a file', 'error');
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(sheet);
+                let imported = 0;
+                jsonData.forEach(row => {
+                    if (row.Title && row.AssigneeEmail) {
+                        const assignee = data.users.find(u => u.email === row.AssigneeEmail);
+                        if (assignee) {
+                            data.tasks.push({
+                                id: generateId(),
+                                title: row.Title,
+                                description: row.Description || '',
+                                assignee: assignee.id,
+                                supervisor: currentUser.id,
+                                team: assignee.team,
+                                dueDate: row.DueDate || new Date().toISOString().split('T')[0],
+                                priority: row.Priority || 'medium',
+                                status: 'pending',
+                                progress: 0,
+                                created: new Date().toISOString().split('T')[0]
+                            });
+                            imported++;
+                        }
+                    }
+                });
+                addActivity('task_create', `${imported} tasks imported from Excel`);
+                showNotification(`${imported} tasks imported`);
+                updateTables();
+                updateCharts();
+                closeModal('bulkTaskModal');
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function importBulkTasks() {
+            const input = document.getElementById('bulkTaskInput').value.trim();
+            if (!input) return showNotification('Enter task data', 'error');
+            const lines = input.split('\n');
+            let imported = 0;
+            lines.forEach(line => {
+                const [title, desc, email, dueDate, priority] = line.split('|').map(s => s.trim());
+                if (title && email) {
+                    const assignee = data.users.find(u => u.email === email);
+                    if (assignee) {
+                        data.tasks.push({
+                            id: generateId(),
+                            title, description: desc, assignee: assignee.id, supervisor: currentUser.id,
+                            team: assignee.team, dueDate, priority: priority || 'medium',
+                            status: 'pending', progress: 0, created: new Date().toISOString().split('T')[0]
+                        });
+                        imported++;
+                    }
+                }
+            });
+            addActivity('task_create', `${imported} tasks imported manually`);
+            showNotification(`${imported} tasks imported`);
+            updateTables();
+            updateCharts();
+            closeModal('bulkTaskModal');
+        }
+
+        // Export Data
+        function exportData() {
+            const wb = XLSX.utils.book_new();
+            ['users', 'teams', 'tasks'].forEach(sheet => {
+                const ws = XLSX.utils.json_to_sheet(data[sheet]);
+                XLSX.utils.book_append_sheet(wb, ws, sheet.charAt(0).toUpperCase() + sheet.slice(1));
+            });
+            XLSX.writeFile(wb, 'TaskFlow_Data_Export.xlsx');
+            showNotification('Data exported successfully!');
+        }
+
+        // Chart Functions
+        function updateCharts() {
+            // Destroy existing charts if they exist
+            if (taskDistributionChart) taskDistributionChart.destroy();
+            if (teamPerformanceChart) teamPerformanceChart.destroy();
+            if (teamTaskDistributionChart) teamTaskDistributionChart.destroy();
+            if (teamProgressChart) teamProgressChart.destroy();
+
+            // Create admin charts
+            if (currentUser && currentUser.role === 'admin') {
+                createTaskDistributionChart();
+                createTeamPerformanceChart();
+            }
+
+            // Create supervisor charts
+            if (currentUser && currentUser.role === 'supervisor') {
+                createTeamTaskDistributionChart();
+                createTeamProgressChart();
+            }
+        }
+
+        function createTaskDistributionChart() {
+            const ctx = document.getElementById('taskDistributionChart').getContext('2d');
+            
+            // Get all users who are not admins
+            const employees = data.users.filter(u => u.role !== 'admin');
+            const userNames = employees.map(u => u.name);
+            const userTasks = employees.map(u => data.tasks.filter(t => t.assignee === u.id).length);
+            
+            taskDistributionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: userNames,
+                    datasets: [{
+                        label: 'Number of Tasks',
+                        data: userTasks,
+                        backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Tasks'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Team Members'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Task Distribution by Employee',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.parsed.y} tasks assigned`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createTeamPerformanceChart() {
+            const ctx = document.getElementById('teamPerformanceChart').getContext('2d');
+            
+            // Get data for each team
+            const teamNames = data.teams.map(t => t.name);
+            const completedTasks = data.teams.map(t => 
+                data.tasks.filter(task => task.team === t.name && task.status === 'completed').length
+            );
+            const inProgressTasks = data.teams.map(t => 
+                data.tasks.filter(task => task.team === t.name && task.status === 'progress').length
+            );
+            const overdueTasks = data.teams.map(t => 
+                data.tasks.filter(task => task.team === t.name && task.status === 'overdue').length
+            );
+            
+            teamPerformanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: teamNames,
+                    datasets: [
+                        {
+                            label: 'Completed Tasks',
+                            data: completedTasks,
+                            backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                            borderColor: 'rgba(40, 167, 69, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'In Progress',
+                            data: inProgressTasks,
+                            backgroundColor: 'rgba(0, 123, 255, 0.7)',
+                            borderColor: 'rgba(0, 123, 255, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Overdue',
+                            data: overdueTasks,
+                            backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                            borderColor: 'rgba(220, 53, 69, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Tasks'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Teams'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Team Performance Overview',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createTeamTaskDistributionChart() {
+            const ctx = document.getElementById('teamTaskDistributionChart').getContext('2d');
+            
+            // Get the supervisor's team
+            const userTeam = data.users.find(u => u.id === currentUser.id)?.team;
+            if (!userTeam) return;
+            
+            // Get team members
+            const teamMembers = data.users.filter(u => u.team === userTeam && u.role === 'employee');
+            const memberNames = teamMembers.map(m => m.name);
+            const memberTasks = teamMembers.map(m => 
+                data.tasks.filter(t => t.assignee === m.id).length
+            );
+            
+            teamTaskDistributionChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: memberNames,
+                    datasets: [{
+                        data: memberTasks,
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(40, 167, 69, 0.8)',
+                            'rgba(220, 53, 69, 0.8)',
+                            'rgba(13, 202, 240, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(102, 126, 234, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(220, 53, 69, 1)',
+                            'rgba(13, 202, 240, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Task Distribution in ${userTeam} Team`,
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} tasks (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createTeamProgressChart() {
+            const ctx = document.getElementById('teamProgressChart').getContext('2d');
+            
+            // Get the supervisor's team
+            const userTeam = data.users.find(u => u.id === currentUser.id)?.team;
+            if (!userTeam) return;
+            
+            // Calculate team-wide metrics
+            const teamTasks = data.tasks.filter(t => t.team === userTeam);
+            if (teamTasks.length === 0) {
+                // If no tasks, show a placeholder
+                teamProgressChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['No Tasks Assigned'],
+                        datasets: [{
+                            data: [1],
+                            backgroundColor: ['rgba(173, 181, 189, 0.8)'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Team Task Status',
+                                font: {
+                                    size: 16
+                                }
+                            }
+                        }
+                    }
+                });
+                return;
+            }
+            
+            const completed = teamTasks.filter(t => t.status === 'completed').length;
+            const inProgress = teamTasks.filter(t => t.status === 'progress').length;
+            const pending = teamTasks.filter(t => t.status === 'pending').length;
+            const overdue = teamTasks.filter(t => t.status === 'overdue').length;
+            
+            teamProgressChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'In Progress', 'Pending', 'Overdue'],
+                    datasets: [{
+                        data: [completed, inProgress, pending, overdue],
+                        backgroundColor: [
+                            'rgba(40, 167, 69, 0.8)',
+                            'rgba(0, 123, 255, 0.8)',
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(220, 53, 69, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(0, 123, 255, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(220, 53, 69, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Team Task Status Overview',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} tasks (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            // Initialize dropdowns
+            populateTeamSelectors();
+            populateSupervisorSelector();
+            populateEmployeeSelector();
+            
+            // Initialize calendar
+            updateCalendar();
+            
+            // Initialize charts (will be properly created when user logs in)
+            updateCharts();
+        };
+
+        // Dropdown Population Functions
+        function populateTeamSelectors() {
+            const selectors = ['newUserTeam', 'assignedTeamFilter'];
+            selectors.forEach(selectorId => {
+                const selector = document.getElementById(selectorId);
+                if (selector) {
+                    const currentValue = selector.value;
+                    selector.innerHTML = selectorId === 'newUserTeam' ? 
+                        '<option value="">Select Team (Optional)</option>' : 
+                        '<option value="">All Teams</option>';
+                    data.teams.forEach(team => {
+                        const option = document.createElement('option');
+                        option.value = team.name;
+                        option.textContent = team.name;
+                        selector.appendChild(option);
+                    });
+                    selector.value = currentValue;
+                }
+            });
+        }
+
+        function populateSupervisorSelector() {
+            const selector = document.getElementById('newTeamSupervisor');
+            if (selector) {
+                selector.innerHTML = '<option value="">Select Supervisor</option>';
+                const supervisors = data.users.filter(user => ['admin', 'supervisor'].includes(user.role));
+                supervisors.forEach(supervisor => {
+                    const option = document.createElement('option');
+                    option.value = supervisor.id;
+                    option.textContent = supervisor.name;
+                    selector.appendChild(option);
+                });
+            }
+        }
+
+        function populateEmployeeSelector() {
+            const selector = document.getElementById('newTaskAssignee');
+            if (selector) {
+                selector.innerHTML = '<option value="">Select Employee</option>';
+                const employees = data.users.filter(user => user.role !== 'admin');
+                employees.forEach(employee => {
+                    const option = document.createElement('option');
+                    option.value = employee.id;
+                    option.textContent = employee.name;
+                    selector.appendChild(option);
+                });
+            }
+        }
+
+        function updateTeamOptions() {
+            const role = document.getElementById('newUserRole').value;
+            const teamSelect = document.getElementById('newUserTeam');
+            teamSelect.innerHTML = '<option value="">Select Team (Optional)</option>';
+            
+            if (role === 'supervisor' || role === 'employee') {
+                data.teams.forEach(team => {
+                    const option = document.createElement('option');
+                    option.value = team.name;
+                    option.textContent = team.name;
+                    teamSelect.appendChild(option);
+                });
+            }
+        }
+        
+        // Recent Tasks Table
+        function updateRecentTasksTable() {
+            const tbody = document.querySelector('#recentTasksTable tbody');
+            tbody.innerHTML = '';
+            
+            // Get tasks based on current user's visibility
+            let visibleTasks = [];
+            if (currentUser.role === 'admin') {
+                visibleTasks = [...data.tasks];
+            } else if (currentUser.role === 'supervisor') {
+                const userTeam = data.users.find(u => u.id === currentUser.id)?.team;
+                visibleTasks = data.tasks.filter(t => {
+                    const assignee = getUserById(t.assignee);
+                    return assignee && assignee.team === userTeam;
+                });
+            } else {
+                visibleTasks = data.tasks.filter(t => t.assignee === currentUser.id);
+            }
+            
+            // Sort by creation date (newest first) and take top 10
+            const recentTasks = visibleTasks
+                .sort((a, b) => new Date(b.created) - new Date(a.created))
+                .slice(0, 10);
+                
+            recentTasks.forEach(task => {
+                const assignee = getUserById(task.assignee);
+                const row = `
+                    <tr>
+                        <td>${task.title}</td>
+                        <td>${assignee ? assignee.name : 'Unknown'}</td>
+                        <td>${formatDate(task.dueDate)}</td>
+                        <td><span class="${getPriorityClass(task.priority)}">${task.priority}</span></td>
+                        <td><span class="${getStatusClass(task.status)}">${task.status}</span></td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+        
+        // Supervised Tasks Table
+        function updateSupervisedTasksTable() {
+            const tbody = document.querySelector('#supervisedTasksTable tbody');
+            tbody.innerHTML = '';
+            
+            // Get tasks based on current user's role
+            let supervisedTasks = [];
+            if (currentUser.role === 'admin') {
+                supervisedTasks = [...data.tasks];
+            } else if (currentUser.role === 'supervisor') {
+                supervisedTasks = data.tasks.filter(task => task.supervisor === currentUser.id);
+            }
+            
+            // Apply filters
+            const searchTerm = (document.getElementById('assignedTaskSearch')?.value|| '').toLowerCase();
+            const teamFilter = document.getElementById('assignedTeamFilter')?.value || '';
+            const statusFilter = document.getElementById('assignedStatusFilter')?.value || '';
+
+            if (searchTerm) supervisedTasks = supervisedTasks.filter(t => 
+                t.title.toLowerCase().includes(searchTerm) || 
+                t.description.toLowerCase().includes(searchTerm)
+            );
+            if (teamFilter) supervisedTasks = supervisedTasks.filter(t => t.team === teamFilter);
+            if (statusFilter) supervisedTasks = supervisedTasks.filter(t => t.status === statusFilter);
+
+            supervisedTasks.forEach(task => {
+                const assignee = getUserById(task.assignee);
+                const row = `
+                    <tr>
+                        <td>${task.title}</td>
+                        <td>${assignee ? assignee.name : 'Unknown'}</td>
+                        <td>${task.team}</td>
+                        <td>${formatDate(task.dueDate)}</td>
+                        <td><span class="${getPriorityClass(task.priority)}">${task.priority}</span></td>
+                        <td><span class="${getStatusClass(task.status)}">${task.status}</span></td>
+                        <td>
+                            <div class="progress-bar"><div class="progress-fill" style="width:${task.progress}%"></div></div>
+                            <small>${task.progress}%</small>
+                        </td>
+                        <td>
+                            <button class="btn btn-small" onclick="updateTaskProgress(${task.id})">Update</button>
+                            <button class="btn btn-small btn-danger" onclick="deleteTask(${task.id})">Delete</button>
+                        </td>
+                    </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+    </script>
+</body>
+</html>
